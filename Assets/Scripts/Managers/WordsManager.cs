@@ -6,6 +6,13 @@ using System.Collections.Generic;
 public class WordsManager : MonoBehaviour
 {
     #region Members
+    private Dictionary<char, ECharacterState> m_CharracterState = new Dictionary<char, ECharacterState>();
+
+    private List<Try> m_Tries = new List<Try>();
+
+    private List<string> m_WordList;
+
+    private List<string> m_WordHackList;
 
     private int m_WordsSize;
 
@@ -13,9 +20,7 @@ public class WordsManager : MonoBehaviour
 
     private int m_Try;
 
-    private List<Try> m_Tries = new List<Try>();
 
-    private Dictionary<char, ECharacterState> m_CharracterState = new Dictionary<char, ECharacterState>();
 
     #endregion
 
@@ -27,7 +32,17 @@ public class WordsManager : MonoBehaviour
     ///</summary>
     void Start()
     {
-       
+        AppData loadData = LibraryFunctions.LoadData();
+        if(loadData != null)
+        {
+            m_WordList = new List<string>(loadData.GetWordList());
+        }
+        else
+        {
+            m_WordList = new List<string>();
+        }
+
+        m_WordHackList = new List<string>();
     }
 
 
@@ -249,6 +264,36 @@ public class WordsManager : MonoBehaviour
         }
     }
 
+    public void AddHackWord(string _Word)
+    {
+        if (m_WordHackList == null)
+        {
+            m_WordHackList = new List<string>();
+        }
+
+        if (!m_WordHackList.Contains(_Word))
+        {
+            m_WordHackList.Add(_Word);
+        }
+
+        AddWord(_Word);
+
+    }
+
+    public void AddWord(string _Word)
+    { 
+        
+        if (m_WordList == null)
+        {
+            m_WordList = new List<string>();
+        }
+
+        if (!m_WordList.Contains(_Word))
+        {
+            m_WordList.Add(_Word);
+        }
+    }
+
     #endregion
 
 
@@ -269,7 +314,10 @@ public class WordsManager : MonoBehaviour
         return m_Try;
     }
 
-
+    public List<string> GetWordList()
+    {
+        return m_WordList;
+    }
 
     #endregion
 }

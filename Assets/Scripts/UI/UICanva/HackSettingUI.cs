@@ -8,12 +8,13 @@ public class HackSettingUI : UICanva
 {
     #region Members
 
-    private WordsManager m_WordsManager;
+    [SerializeField]
+    private HackConfigsPanel m_HackConfigsPanel = null;
 
     [SerializeField]
-    private TMPro.TMP_InputField m_WordSizeTxt = null;
-    [SerializeField]
-    private TMPro.TMP_InputField m_NumberOfTrialsTxt = null;
+    private AddWordPanel m_AddWordPanel = null;
+
+    private WordsManager m_WordsManager;
 
     #endregion
 
@@ -26,6 +27,9 @@ public class HackSettingUI : UICanva
     override protected void Start()
     {
         m_WordsManager = FindObjectOfType<WordsManager>();
+
+        m_AddWordPanel.gameObject.SetActive(false);
+        m_HackConfigsPanel.gameObject.SetActive(true);
     }
 
 
@@ -40,20 +44,17 @@ public class HackSettingUI : UICanva
     {
         base.OnDisable();
 
-        if(m_WordSizeTxt)
-        {
-            m_WordSizeTxt.text = "";
-        }
-
-        if (m_NumberOfTrialsTxt)
-        {
-            m_NumberOfTrialsTxt.text = "";
-        }
     }
 
     protected override void OnEnable()
     {
         base.OnEnable();
+
+        m_AddWordPanel.gameObject.SetActive(false);
+        m_AddWordPanel.ResetPanel();
+
+        m_HackConfigsPanel.gameObject.SetActive(true);
+        m_HackConfigsPanel.ResetPanel();
     }
 
     #endregion
@@ -61,38 +62,36 @@ public class HackSettingUI : UICanva
 
     #region Functions
 
-    public bool ValideInputSetting()
-    {
-
-        if((!m_NumberOfTrialsTxt) || (!m_WordSizeTxt))
-        {
-            return false;
-        }
-
-        if((m_WordSizeTxt.text == "") || (m_WordSizeTxt.text == "0"))
-        {
-            return false;
-        }
-
-        if ((m_NumberOfTrialsTxt.text == "") || (m_NumberOfTrialsTxt.text == "0"))
-        {
-            return false;
-        }
-
-        return true;
-    }
+    
 
 
     public bool ImporNewSetting()
     {
-        if (ValideInputSetting())
+        if (m_HackConfigsPanel.ValideInputSetting())
         {
-            m_WordsManager.SetSettings(int.Parse(m_WordSizeTxt.text), int.Parse(m_NumberOfTrialsTxt.text));
+            m_WordsManager.SetSettings(m_HackConfigsPanel.GetWordSize(), m_HackConfigsPanel.GetNumberOfTrials());
             return true;
         }
 
         return false;
 
+    }
+
+    public void ShowAddWordPanel()
+    {
+        if(m_AddWordPanel && m_HackConfigsPanel)
+        {
+            if(m_AddWordPanel.isActiveAndEnabled)
+            {
+                m_AddWordPanel.gameObject.SetActive(false);
+                m_HackConfigsPanel.gameObject.SetActive(true);
+            }
+            else
+            {
+                m_AddWordPanel.gameObject.SetActive(true);
+                m_HackConfigsPanel.gameObject.SetActive(false);
+            }
+        }
     }
 
     #endregion
