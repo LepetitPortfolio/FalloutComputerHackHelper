@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +12,8 @@ public class AddWordPanel : MonoBehaviour
     [SerializeField]
     private TMPro.TMP_InputField m_WordTxtInput = null;
 
+    private List<WordLine> m_WordLineList;
+
     [SerializeField]
     private ScrollRect m_WordsScroll = null;
 
@@ -18,6 +22,9 @@ public class AddWordPanel : MonoBehaviour
 
     private WordsManager m_WordsManager;
 
+    [SerializeField]
+    private bool m_AddWordInHackWordList = false;
+
     #endregion
 
     #region Initialisation
@@ -25,6 +32,7 @@ public class AddWordPanel : MonoBehaviour
     void Start()
     {
         m_WordsManager = GameObject.FindObjectOfType<WordsManager>();
+        m_WordLineList = new List<WordLine>();
     }
     #endregion
 
@@ -44,11 +52,35 @@ public class AddWordPanel : MonoBehaviour
 
     #region AddWordPanel
 
+    public void InitializePanel()
+    {
+        m_WordTxtInput.text = "";
+        if (m_WordsManager != null)
+        {
+            List<string> words = m_WordsManager.GetWordList();
+
+            if(m_AddWordInHackWordList)
+            {
+                words = m_WordsManager.GetWordHackList();
+            }
+
+            for(int wordIndex = 0; wordIndex < words.Count; wordIndex++)
+            {
+                AddWordLineInWordsScroll(words[wordIndex], wordIndex);
+            }
+            
+        }
+    }    
+
     public void ResetPanel()
     {
-        while (m_WordsScroll.content.childCount != 0)
+        if (m_WordLineList != null)
         {
-            DestroyImmediate(m_WordsScroll.content.GetChild(0));
+            while (m_WordLineList.Count != 0)
+            {
+                DestroyImmediate(m_WordLineList[0].gameObject);
+                m_WordLineList.RemoveAt(0);
+            }
         }
 
         m_WordTxtInput.text = "";
@@ -56,26 +88,58 @@ public class AddWordPanel : MonoBehaviour
 
     public void AddWord()
     {
-        if (m_WordTxtInput && m_WordsScroll && m_WordLinePrefab)
+        if (m_WordTxtInput)
         {
             string word = m_WordTxtInput.text;
 
             if (word.Length != 0)
             {
                 word = LibraryFunctions.UpCapsWord(word);
-
-                WordLine wordLine = Instantiate<WordLine>(m_WordLinePrefab, m_WordsScroll.content.transform);
-
-                wordLine.SetWord(word);
+                int wordCountRegisted = 0;
 
                 if (m_WordsManager)
                 {
-                    m_WordsManager.AddHackWord(word);
+                    if (m_AddWordInHackWordList)
+                    {
+                        wordCountRegisted = m_WordsManager.GetWordHackList().Count;
+                        m_WordsManager.AddHackWord(word);
+                    }
+                    else
+                    {
+                        wordCountRegisted = m_WordsManager.GetWordList().Count;
+                        m_WordsManager.AddWord(word);
+                    }
                 }
+
+                AddWordLineInWordsScroll(word, wordCountRegisted);
 
                 m_WordTxtInput.text = "";
             }
         }
     }
+
+    public void AddWordLineInWordsScroll(string _Word, int _WordCount)
+    {
+        if (m_WordsScroll && m_WordLinePrefab)
+        {
+            WordLine wordLine = Instantiate<WordLine>(m_WordLinePrefab, m_WordsScroll.content.transform);
+
+            Initialize(wordLine, _Word, _WordCount);
+        }        
+    }
+
+    public void Initialize(WordLine _WordLine, string _Word, int _WordCount)
+    {
+        if(_WordLine)
+        {
+            m_WordLineList.Add(_WordLine);
+            Vector3 wordLinePosition = new Vector3();
+            wordLinePosition.y = (-_WordLine.GetRectTransform().rect.height / 2) - (_WordCount * _WordLine.GetRectTransform().rect.height);
+            _WordLine.GetRectTransform().anchoredPosition = wordLinePosition;
+
+            _WordLine.SetWord(_Word);
+        }
+    }
+
     #endregion
 }

@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[SerializeField]
+[System.Serializable]
 public class AppData 
 {
 
 	#region Membre
-	List<string> m_WordList;
+		public List<string> m_WordList;
     #endregion
 
 	#region Initialisation

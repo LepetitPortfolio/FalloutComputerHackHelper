@@ -32,14 +32,12 @@ public class WordsManager : MonoBehaviour
     ///</summary>
     void Start()
     {
+        m_WordList = new List<string>();
+
         AppData loadData = LibraryFunctions.LoadData();
         if(loadData != null)
         {
             m_WordList = new List<string>(loadData.GetWordList());
-        }
-        else
-        {
-            m_WordList = new List<string>();
         }
 
         m_WordHackList = new List<string>();
@@ -280,6 +278,19 @@ public class WordsManager : MonoBehaviour
 
     }
 
+    public void CleanHackwords()
+    {
+        if (m_WordHackList == null)
+        {
+            m_WordHackList = new List<string>();
+        }
+
+        if(m_WordHackList.Count > 0)
+        {
+            m_WordHackList.Clear();
+        }
+    }
+
     public void AddWord(string _Word)
     { 
         
@@ -291,6 +302,8 @@ public class WordsManager : MonoBehaviour
         if (!m_WordList.Contains(_Word))
         {
             m_WordList.Add(_Word);
+
+            LibraryFunctions.SaveData();
         }
     }
 
@@ -316,7 +329,20 @@ public class WordsManager : MonoBehaviour
 
     public List<string> GetWordList()
     {
+        if (m_WordList == null)
+        {
+            m_WordList = new List<string>();
+        }
         return m_WordList;
+    }
+
+    public List<string> GetWordHackList()
+    {
+        if (m_WordHackList == null)
+        {
+            m_WordHackList = new List<string>();
+        }
+        return m_WordHackList;
     }
 
     #endregion

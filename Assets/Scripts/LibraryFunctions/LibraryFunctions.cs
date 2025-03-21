@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using System;
+using System.IO;
+using Unity.VisualScripting;
 
 
 public static class LibraryFunctions 
@@ -24,11 +25,18 @@ public static class LibraryFunctions
         for(int charIndex = 0; charIndex < _Word.Length; charIndex++)
         {
             char c = _Word[charIndex];
+
+            if ((c >= (0x41)) && (c <= (0x5A)))
+            {
+                outWord += c;
+            }
+
             if ((c >= 0x61) && (c <= 0x7A))
             {
                 c -= (char)0x20;
                 outWord += c;
             }
+
         }
 
         return outWord;
@@ -36,32 +44,12 @@ public static class LibraryFunctions
 
     public static void SaveData()
     {
-        BinaryFormatter formatter = new BinaryFormatter();
-        string path = Application.persistentDataPath + "/Data.sav";
-        FileStream stream = new FileStream(path, FileMode.Create);
-
-        AppData data = new AppData();
-
-        formatter.Serialize(stream, data);
-
-        stream.Close();
+        SaveLoadDataManager.m_Instance.SaveData(new AppData());
     }
 
     public static AppData LoadData()
     {
-        string path = Application.persistentDataPath + "/Data.sav";
-        AppData data = null;
-        if (File.Exists(path))
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(path, FileMode.Open);
-
-            data =  formatter.Deserialize(stream) as AppData;
-
-            stream.Close();
-        }
-
-        return data;
+       return SaveLoadDataManager.m_Instance.LoadData();
     }
 
     #endregion

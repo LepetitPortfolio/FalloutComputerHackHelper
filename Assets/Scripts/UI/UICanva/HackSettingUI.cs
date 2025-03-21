@@ -50,6 +50,8 @@ public class HackSettingUI : UICanva
     {
         base.OnEnable();
 
+        m_WordsManager.CleanHackwords();
+
         m_AddWordPanel.gameObject.SetActive(false);
         m_AddWordPanel.ResetPanel();
 
@@ -61,9 +63,6 @@ public class HackSettingUI : UICanva
 
 
     #region Functions
-
-    
-
 
     public bool ImporNewSetting()
     {
