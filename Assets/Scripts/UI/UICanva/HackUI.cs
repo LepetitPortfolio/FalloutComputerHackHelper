@@ -7,8 +7,6 @@ public class HackUI : UICanva
 {
     #region Members
 
-    private WordsManager m_WordsManager;
-
     [SerializeField]
     private TMPro.TextMeshProUGUI m_TryInfoTxt;
 
@@ -35,11 +33,9 @@ public class HackUI : UICanva
     {
         base.Start();
 
-        m_WordsManager = FindObjectOfType<WordsManager>();
+        m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
 
-        m_TryInfoTxt.text = m_WordsManager.GetTry() + "/" + m_WordsManager.GetNumberOfTrials();
-
-        m_WordSizeMax.text = "/" + m_WordsManager.GetWordsSize();
+        m_WordSizeMax.text = "/" + LibraryFunctions.GetWordsManager().GetWordsSize();
     }
 
 
@@ -60,13 +56,13 @@ public class HackUI : UICanva
     {
         base.OnEnable();
 
-        if((m_TryInfoTxt) && (m_WordsManager))
+        if(m_TryInfoTxt)
         {
-            m_TryInfoTxt.text = m_WordsManager.GetTry() + "/" + m_WordsManager.GetNumberOfTrials();
+            m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
         }
-        if ((m_WordSizeMax) && (m_WordsManager))
+        if (m_WordSizeMax)
         {
-            m_WordSizeMax.text = "/" + m_WordsManager.GetWordsSize();
+            m_WordSizeMax.text = "/" + LibraryFunctions.GetWordsManager().GetWordsSize();
         }
 
         if(m_LettersStateUI)
@@ -83,21 +79,19 @@ public class HackUI : UICanva
 
     public void LaunchCompute()
     {
-        if (m_WordsManager)
+        if (LibraryFunctions.GetWordsManager().GetTry() < LibraryFunctions.GetWordsManager().GetNumberOfTrials())
         {
-            if (m_WordsManager.GetTry() < m_WordsManager.GetNumberOfTrials())
+            if ((m_WordInput) && (m_CorrectCharInput))
             {
-                if ((m_WordInput) && (m_CorrectCharInput))
-                {
-                    m_WordsManager.Compute(m_WordInput.text, int.Parse(m_CorrectCharInput.text), this);
-                    m_WordsManager.IncreaseTry();
-                    m_TryInfoTxt.text = m_WordsManager.GetTry() + "/" + m_WordsManager.GetNumberOfTrials();
-                    m_WordInput.text = "";
-                    m_CorrectCharInput.text = "";
+                LibraryFunctions.GetWordsManager().Compute(m_WordInput.text, int.Parse(m_CorrectCharInput.text), this);
+                LibraryFunctions.GetWordsManager().IncreaseTry();
+                m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
+                m_WordInput.text = "";
+                m_CorrectCharInput.text = "";
 
-                }
             }
         }
+        
     }
 
     public void ChangeStateCharacter(char _Character, ECharacterState _CharacterState)

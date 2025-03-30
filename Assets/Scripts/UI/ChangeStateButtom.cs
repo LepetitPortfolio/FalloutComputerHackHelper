@@ -21,7 +21,7 @@ public class ChangeStateButtom : MonoBehaviour
     ///</summary>
     protected void Start()
     {
-        m_CanvasManager = FindObjectOfType<CanvasManager>();
+        m_CanvasManager = FindAnyObjectByType<CanvasManager>();
     }
 
 

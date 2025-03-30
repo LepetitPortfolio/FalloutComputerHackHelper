@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 
 
 public class WordsManager : MonoBehaviour
 {
     #region Members
+    public static WordsManager m_Instance { get; private set; }
+
     private Dictionary<char, ECharacterState> m_CharracterState = new Dictionary<char, ECharacterState>();
 
     private List<Try> m_Tries = new List<Try>();
@@ -26,6 +29,16 @@ public class WordsManager : MonoBehaviour
 
 
     #region Manipulators
+
+    private void Awake()
+    {
+        if (m_Instance != null)
+        {
+            Debug.LogError("Found more than one Words Manager in this scene");
+        }
+        m_Instance = this;
+
+    }
 
     ///<summary>
     /// Use this for initialization
@@ -278,11 +291,49 @@ public class WordsManager : MonoBehaviour
 
     }
 
+    public bool ModifyHackWord(string _OldWord, string _NewWord)
+    {        
+        if (m_WordHackList == null)
+        {
+            AddHackWord(_NewWord);
+            return true;
+        }
+
+        if (m_WordHackList.Contains(_NewWord))
+        {
+            return false;
+        }
+
+        if (m_WordHackList.Contains(_OldWord))
+        {
+            int wordIndex = m_WordHackList.IndexOf(_OldWord);
+
+            m_WordHackList[wordIndex] = _NewWord;
+
+        }
+        else
+        {
+            AddHackWord(_NewWord);
+        }
+        return true;
+    }
+
+    public void RemoveHackWord(string _Word)
+    {
+
+        if (m_WordHackList.Contains(_Word))
+        {
+            m_WordHackList.Remove(_Word);
+        }
+        
+    }
+
     public void CleanHackwords()
     {
         if (m_WordHackList == null)
         {
             m_WordHackList = new List<string>();
+            return;
         }
 
         if(m_WordHackList.Count > 0)
@@ -302,6 +353,52 @@ public class WordsManager : MonoBehaviour
         if (!m_WordList.Contains(_Word))
         {
             m_WordList.Add(_Word);
+
+            LibraryFunctions.SaveData();
+        }
+    }
+
+    public bool ModifyWord(string _OldWord, string _NewWord)
+    {       
+
+        if (m_WordList == null)
+        {
+            AddWord(_NewWord);
+            return true;
+        }
+
+        if (m_WordList.Contains(_NewWord))
+        {
+            return false;
+        }
+
+        if (m_WordList.Contains(_OldWord))
+        {
+            int wordIndex = m_WordList.IndexOf(_OldWord);
+
+            m_WordList[wordIndex] = _NewWord;
+
+            LibraryFunctions.SaveData();
+        }
+        else
+        {
+            AddWord(_NewWord);
+        }
+
+        return true;
+    }
+
+    public void RemoveWord(string _Word)
+    {
+        if (m_WordList == null)
+        {
+            m_WordList = new List<string>();
+            return;
+        }
+
+        if (m_WordList.Contains(_Word))
+        {
+            m_WordList.Remove(_Word);
 
             LibraryFunctions.SaveData();
         }

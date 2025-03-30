@@ -42,6 +42,16 @@ public static class LibraryFunctions
         return outWord;
     }
 
+    public static WordsManager GetWordsManager()
+    {
+        return WordsManager.m_Instance;
+    }
+
+    public static CanvasManager GetCanvasManager()
+    {
+        return CanvasManager.m_Instance;
+    }
+
     public static void SaveData()
     {
         SaveLoadDataManager.m_Instance.SaveData(new AppData());

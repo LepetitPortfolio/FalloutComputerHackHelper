@@ -9,6 +9,7 @@ public class AddWordPanel : MonoBehaviour
 {
 
     #region Membre
+
     [SerializeField]
     private TMPro.TMP_InputField m_WordTxtInput = null;
 
@@ -20,7 +21,7 @@ public class AddWordPanel : MonoBehaviour
     [SerializeField]
     private WordLine m_WordLinePrefab;
 
-    private WordsManager m_WordsManager;
+    private RectTransform m_WordLineSize;
 
     [SerializeField]
     private bool m_AddWordInHackWordList = false;
@@ -31,8 +32,8 @@ public class AddWordPanel : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        m_WordsManager = GameObject.FindObjectOfType<WordsManager>();
         m_WordLineList = new List<WordLine>();
+        m_WordLineSize = m_WordLinePrefab.GetComponent<RectTransform>(); 
     }
     #endregion
 
@@ -55,21 +56,19 @@ public class AddWordPanel : MonoBehaviour
     public void InitializePanel()
     {
         m_WordTxtInput.text = "";
-        if (m_WordsManager != null)
+        
+        List<string> words = LibraryFunctions.GetWordsManager().GetWordList();
+
+        if(m_AddWordInHackWordList)
         {
-            List<string> words = m_WordsManager.GetWordList();
-
-            if(m_AddWordInHackWordList)
-            {
-                words = m_WordsManager.GetWordHackList();
-            }
-
-            for(int wordIndex = 0; wordIndex < words.Count; wordIndex++)
-            {
-                AddWordLineInWordsScroll(words[wordIndex], wordIndex);
-            }
-            
+            words = LibraryFunctions.GetWordsManager().GetWordHackList();
         }
+
+        for(int wordIndex = 0; wordIndex < words.Count; wordIndex++)
+        {
+            AddWordLineInWordsScroll(words[wordIndex], wordIndex);
+        }          
+        
     }    
 
     public void ResetPanel()
@@ -97,19 +96,18 @@ public class AddWordPanel : MonoBehaviour
                 word = LibraryFunctions.UpCapsWord(word);
                 int wordCountRegisted = 0;
 
-                if (m_WordsManager)
+                
+                if (m_AddWordInHackWordList)
                 {
-                    if (m_AddWordInHackWordList)
-                    {
-                        wordCountRegisted = m_WordsManager.GetWordHackList().Count;
-                        m_WordsManager.AddHackWord(word);
-                    }
-                    else
-                    {
-                        wordCountRegisted = m_WordsManager.GetWordList().Count;
-                        m_WordsManager.AddWord(word);
-                    }
+                    wordCountRegisted = LibraryFunctions.GetWordsManager().GetWordHackList().Count;
+                    LibraryFunctions.GetWordsManager().AddHackWord(word);
                 }
+                else
+                {
+                    wordCountRegisted = LibraryFunctions.GetWordsManager().GetWordList().Count;
+                    LibraryFunctions.GetWordsManager().AddWord(word);
+                }
+                
 
                 AddWordLineInWordsScroll(word, wordCountRegisted);
 
@@ -124,6 +122,8 @@ public class AddWordPanel : MonoBehaviour
         {
             WordLine wordLine = Instantiate<WordLine>(m_WordLinePrefab, m_WordsScroll.content.transform);
 
+            Rect rect = m_WordLinePrefab.GetRectTransform().rect;
+
             Initialize(wordLine, _Word, _WordCount);
         }        
     }
@@ -133,12 +133,65 @@ public class AddWordPanel : MonoBehaviour
         if(_WordLine)
         {
             m_WordLineList.Add(_WordLine);
-            Vector3 wordLinePosition = new Vector3();
-            wordLinePosition.y = (-_WordLine.GetRectTransform().rect.height / 2) - (_WordCount * _WordLine.GetRectTransform().rect.height);
-            _WordLine.GetRectTransform().anchoredPosition = wordLinePosition;
 
-            _WordLine.SetWord(_Word);
+            Vector3 wordLinePosition = new Vector3();
+            wordLinePosition.y -= (_WordCount * m_WordLineSize.rect.height);
+            _WordLine.GetRectTransform().localPosition += wordLinePosition;
+
+            _WordLine.InitializeLine(_Word, this, m_AddWordInHackWordList);
         }
+    }
+
+    public void DeleteLine(string _WordLine)
+    {
+        WordLine wordLineFind = null;
+        int wordLineIndex = 0;
+        while ((wordLineFind == null) && (wordLineIndex < m_WordLineList.Count))
+        {
+            WordLine wordLine = m_WordLineList[wordLineIndex];
+
+            if(wordLine.GetWord().text == _WordLine)
+            {
+                wordLineFind = wordLine;
+            }
+            else
+            {
+                wordLineIndex++;
+            }
+        }
+
+        if(wordLineFind)
+        {
+            DeleteLine(wordLineFind);
+        }
+    }
+
+    public void DeleteLine(WordLine _WordLine)
+    {
+        if(m_AddWordInHackWordList)
+        {
+            LibraryFunctions.GetWordsManager().RemoveHackWord(_WordLine.GetWord().text);
+        }
+        else
+        {
+            LibraryFunctions.GetWordsManager().RemoveWord(_WordLine.GetWord().text);
+        }
+
+        int wordLineIndex = m_WordLineList.IndexOf(_WordLine);
+        float wordLineHeight = _WordLine.GetRectTransform().rect.height;
+        m_WordLineList.Remove(_WordLine);
+
+        for(; wordLineIndex < m_WordLineList.Count; wordLineIndex++)
+        {
+            WordLine wordLine= m_WordLineList[wordLineIndex];
+
+            Vector3 wordLinePosition = new Vector3();
+            wordLinePosition.y = m_WordLineSize.rect.height;
+            wordLine.GetRectTransform().localPosition += wordLinePosition;
+        }
+
+        DestroyImmediate(_WordLine.gameObject);
+
     }
 
     #endregion

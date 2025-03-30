@@ -26,7 +26,7 @@ public class HackSettingUI : UICanva
     ///</summary>
     override protected void Start()
     {
-        m_WordsManager = FindObjectOfType<WordsManager>();
+        m_WordsManager = FindAnyObjectByType<WordsManager>();
 
         m_AddWordPanel.gameObject.SetActive(false);
         m_HackConfigsPanel.gameObject.SetActive(true);
@@ -49,8 +49,10 @@ public class HackSettingUI : UICanva
     protected override void OnEnable()
     {
         base.OnEnable();
-
-        m_WordsManager.CleanHackwords();
+        if (m_WordsManager)
+        {
+            m_WordsManager.CleanHackwords();
+        }
 
         m_AddWordPanel.gameObject.SetActive(false);
         m_AddWordPanel.ResetPanel();

@@ -7,25 +7,47 @@ public class CanvasManager : MonoBehaviour
 {
     #region Members
 
+    public static CanvasManager m_Instance { get; private set; }
+
     [SerializeField]
     private EGameState m_DefaultGameState = EGameState.MainMenu;
 
     private EGameState m_CurrentGameState = EGameState.None;
 
     [SerializeField]
-    private List<CanvasState> m_CanvasList;
+    private List<CanvasState> m_CanvasListEditor;
+    private Dictionary<EGameState, CanvasState> m_CanvasList;
+
+    [SerializeField]
+    private List<CanvasOverlay> m_OverlayCanvasListEditor;
+    private Dictionary<string, CanvasOverlay> m_OverlayCanvasList;
+
+    [SerializeField]
+    private Canvas m_ValidActionOverlayCanva;
+
+    private ValidUI m_ValidUI = null;
 
     #endregion
 
 
     #region Manipulators
 
+    private void Awake()
+    {
+        if (m_Instance != null)
+        {
+            Debug.LogError("Found more than one Canvas Manager in this scene");
+        }
+        m_Instance = this;
+
+    }
+
     ///<summary>
     /// Use this for initialization
     ///</summary>
     void Start()
     {
-        HideAllCanvas();
+        InitializeAllCanvas();
         ChangeCurrentCanva(m_DefaultGameState);
     }
 
@@ -42,31 +64,53 @@ public class CanvasManager : MonoBehaviour
 
     #region Functions
 
-    private void HideAllCanvas()
+    private void InitializeAllCanvas()
     {
-        for(int canvaIndex = 0; canvaIndex < m_CanvasList.Count; canvaIndex++)
+        m_CanvasList = new Dictionary<EGameState, CanvasState>();
+        m_OverlayCanvasList = new Dictionary<string, CanvasOverlay>();
+
+        for (int canvaIndex = 0; canvaIndex < m_CanvasListEditor.Count; canvaIndex++)
         {
-            m_CanvasList[canvaIndex].m_CanvaState.gameObject.SetActive(false);
+            CanvasState canvasState = m_CanvasListEditor[canvaIndex];
+
+            canvasState.GetCanvaState().gameObject.SetActive(false);
+
+            m_CanvasList[canvasState.GetGameState()] = canvasState;
         }
+
+        for (int canvaIndex = 0; canvaIndex < m_OverlayCanvasListEditor.Count; canvaIndex++)
+        {
+            CanvasOverlay canvasOverlay = m_OverlayCanvasListEditor[canvaIndex];
+
+            canvasOverlay.GetOverlayCanva().gameObject.SetActive(false);
+
+            canvasOverlay.m_UICanva = canvasOverlay.GetOverlayCanva().GetComponent<UICanva>();
+
+            m_OverlayCanvasList[canvasOverlay.GetOverlayID()] = canvasOverlay;
+
+        }
+
+        m_ValidActionOverlayCanva.gameObject.SetActive(false);
+        m_ValidUI = m_ValidActionOverlayCanva.GetComponent<ValidUI>();
     }
 
     public bool ChangeCurrentCanva(EGameState _NewGameState)
     {
         if(m_CurrentGameState != EGameState.None)
         {
-            CanvasState canvasFound = FindCanvasByGameState(m_CurrentGameState);
-            if (canvasFound.m_GameSate != EGameState.None)
+            CanvasState canvasFound = m_CanvasList[m_CurrentGameState];
+            if (canvasFound.GetGameState() != EGameState.None)
             {
-                canvasFound.m_CanvaState.gameObject.SetActive(false);
+                canvasFound.GetCanvaState().gameObject.SetActive(false);
             }
         }
 
         if(_NewGameState != EGameState.None)
         {
-            CanvasState canvasFound = FindCanvasByGameState(_NewGameState);
-            if (canvasFound.m_GameSate != EGameState.None)
+            CanvasState canvasFound = m_CanvasList[_NewGameState];
+            if (canvasFound.GetGameState() != EGameState.None)
             {
-                canvasFound.m_CanvaState.gameObject.SetActive(true);
+                canvasFound.GetCanvaState().gameObject.SetActive(true);
                 m_CurrentGameState = _NewGameState;
                 return true;
             }
@@ -75,25 +119,32 @@ public class CanvasManager : MonoBehaviour
         return false;
     }
 
-    public CanvasState FindCanvasByGameState(EGameState _GameState)
+    public UICanva DisplayOverlay(string _OverlayID, bool _Value)
     {
-        CanvasState canva = new CanvasState();
-        int canvaIndex = 0;
-
-        while((canva.m_GameSate == EGameState.None) && (canvaIndex < m_CanvasList.Count))
+        if(_OverlayID == string.Empty)
         {
-            CanvasState c = m_CanvasList[canvaIndex];
-            if (c.m_GameSate == _GameState)
-            {
-                canva = c;                
-            }
-            else
-            {
-                canvaIndex++;
-            }
+            return null;
         }
 
-        return canva;
+        UICanva outUICanva = null;
+
+        CanvasOverlay canvasFound = m_OverlayCanvasList[_OverlayID];
+        if (canvasFound.GetOverlayID() == _OverlayID)
+        {
+            canvasFound.GetOverlayCanva().gameObject.SetActive(_Value);
+            outUICanva = canvasFound.GetUICanva();
+        }
+
+        return outUICanva;
+    }
+
+    public void DisplayValidActionOverlay(ActionValidate _ActionToValidate)
+    {
+        if(m_ValidUI)
+        {
+            m_ValidUI.SetActionValidateHandler(_ActionToValidate);
+            m_ValidActionOverlayCanva.gameObject.SetActive(true);
+        }
     }
 
     #endregion

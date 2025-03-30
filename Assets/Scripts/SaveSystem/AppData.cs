@@ -14,7 +14,7 @@ public class AppData
 	//Constructor
 	public AppData () 
 	{
-		WordsManager wordsManager = GameObject.FindObjectOfType<WordsManager>();
+		WordsManager wordsManager = GameObject.FindAnyObjectByType<WordsManager>();
 		m_WordList = new List<string>(wordsManager.GetWordList());
 	}
     #endregion
