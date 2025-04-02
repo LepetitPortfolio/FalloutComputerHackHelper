@@ -8,9 +8,6 @@ public class HackConfigsPanel : MonoBehaviour
 	#region Membre
 
 	[SerializeField]
-	private TMPro.TMP_InputField m_WordSizeTxt = null;
-
-	[SerializeField]
 	private TMPro.TMP_InputField m_NumberOfTrialsTxt = null;
 
 	#endregion
@@ -24,11 +21,6 @@ public class HackConfigsPanel : MonoBehaviour
     #endregion
 
     #region Accessor
-
-	public int GetWordSize()
-    {
-		return int.Parse(m_WordSizeTxt.text);
-	}
 
 	public int GetNumberOfTrials()
     {
@@ -51,10 +43,6 @@ public class HackConfigsPanel : MonoBehaviour
 
 	public void ResetPanel()
     {
-		if (m_WordSizeTxt)
-		{
-			m_WordSizeTxt.text = "";
-		}
 
 		if (m_NumberOfTrialsTxt)
 		{
@@ -65,12 +53,7 @@ public class HackConfigsPanel : MonoBehaviour
 	public bool ValideInputSetting()
 	{
 
-		if ((!m_NumberOfTrialsTxt) || (!m_WordSizeTxt))
-		{
-			return false;
-		}
-
-		if ((m_WordSizeTxt.text == "") || (m_WordSizeTxt.text == "0"))
+		if (!m_NumberOfTrialsTxt)
 		{
 			return false;
 		}

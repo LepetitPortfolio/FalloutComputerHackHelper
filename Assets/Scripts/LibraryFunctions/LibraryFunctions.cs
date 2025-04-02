@@ -47,6 +47,11 @@ public static class LibraryFunctions
         return WordsManager.m_Instance;
     }
 
+    public static HackSolver GetHackSolver()
+    {
+        return HackSolver.m_Instance;
+    }
+
     public static CanvasManager GetCanvasManager()
     {
         return CanvasManager.m_Instance;

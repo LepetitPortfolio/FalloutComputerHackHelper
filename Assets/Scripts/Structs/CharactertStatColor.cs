@@ -3,18 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public struct CharactertStateColor 
+public class CharactertStatColor 
 {
 
     #region Membre
 
     [SerializeField]
-    public ECharacterState m_LetterState;
+    private ECharacterStat m_LetterState;
     [SerializeField]
-    public Color m_Color;
+    private Color m_Color;
     #endregion
 
     #region Accessor
+
+    public ECharacterStat GetCharacterStat()
+    {
+        return m_LetterState;
+    }
+
+    public Color GetColorStat()
+    {
+        return m_Color;
+    }
 
     #endregion
 

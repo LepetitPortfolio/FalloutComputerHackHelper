@@ -16,7 +16,7 @@ public class HackUI : UICanva
     private TMPro.TMP_InputField m_CorrectCharInput;
 
     [SerializeField]
-    private TMPro.TextMeshProUGUI m_WordSizeMax;
+    private TMPro.TextMeshProUGUI m_SuggestTxt;
 
     [SerializeField]
     private LettersStateUI m_LettersStateUI;
@@ -33,9 +33,7 @@ public class HackUI : UICanva
     {
         base.Start();
 
-        m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
-
-        m_WordSizeMax.text = "/" + LibraryFunctions.GetWordsManager().GetWordsSize();
+        m_TryInfoTxt.text = LibraryFunctions.GetHackSolver().GetTries() + "/" + LibraryFunctions.GetHackSolver().GetNumberOfTrials();
     }
 
 
@@ -58,16 +56,17 @@ public class HackUI : UICanva
 
         if(m_TryInfoTxt)
         {
-            m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
-        }
-        if (m_WordSizeMax)
-        {
-            m_WordSizeMax.text = "/" + LibraryFunctions.GetWordsManager().GetWordsSize();
+            m_TryInfoTxt.text = LibraryFunctions.GetHackSolver().GetTries() + "/" + LibraryFunctions.GetHackSolver().GetNumberOfTrials();
         }
 
-        if(m_LettersStateUI)
+        if (m_SuggestTxt)
         {
-            m_LettersStateUI.ResetStateOfCharacter();
+            m_SuggestTxt.text = "";
+        }
+
+        if (m_LettersStateUI)
+        {
+            m_LettersStateUI.ResetStatOfCharacter();
         }
 
     }
@@ -77,15 +76,33 @@ public class HackUI : UICanva
 
     #region Functions
 
+    public void GiveSugests(List<string> _Sugests)
+    {
+        if(m_SuggestTxt)
+        {
+            string sugests = "";
+            for(int sugestIndex =0; sugestIndex < _Sugests.Count; sugestIndex++)
+            {
+                sugests += _Sugests[sugestIndex];
+                if(sugestIndex+1 < _Sugests.Count)
+                {
+                    sugests += ", ";
+                }
+            }
+            m_SuggestTxt.text = sugests;
+        }
+    }
+
     public void LaunchCompute()
     {
-        if (LibraryFunctions.GetWordsManager().GetTry() < LibraryFunctions.GetWordsManager().GetNumberOfTrials())
+        if (LibraryFunctions.GetHackSolver().GetTries() < LibraryFunctions.GetHackSolver().GetNumberOfTrials())
         {
             if ((m_WordInput) && (m_CorrectCharInput))
             {
-                LibraryFunctions.GetWordsManager().Compute(m_WordInput.text, int.Parse(m_CorrectCharInput.text), this);
-                LibraryFunctions.GetWordsManager().IncreaseTry();
-                m_TryInfoTxt.text = LibraryFunctions.GetWordsManager().GetTry() + "/" + LibraryFunctions.GetWordsManager().GetNumberOfTrials();
+                string word = LibraryFunctions.UpCapsWord(m_WordInput.text);
+
+                LibraryFunctions.GetHackSolver().Compute(word, int.Parse(m_CorrectCharInput.text), this);
+                m_TryInfoTxt.text = LibraryFunctions.GetHackSolver().GetTries() + "/" + LibraryFunctions.GetHackSolver().GetNumberOfTrials();
                 m_WordInput.text = "";
                 m_CorrectCharInput.text = "";
 
@@ -94,11 +111,11 @@ public class HackUI : UICanva
         
     }
 
-    public void ChangeStateCharacter(char _Character, ECharacterState _CharacterState)
+    public void ChangeCharacterColor(char _Character, Color _Color)
     {
         if(m_LettersStateUI)
         {
-            m_LettersStateUI.ChangeStateCharacter(_Character, _CharacterState);
+            m_LettersStateUI.ChangeCharacterColor(_Character, _Color);
         }
     }
 

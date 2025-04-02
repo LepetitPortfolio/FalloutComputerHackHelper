@@ -2,10 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum ECharacterState 
+public enum ECharacterStat 
 {
-    Unknown = 0,
-    Used = 1,
-    Undetermined = 2,
-    Unused = 3
+    Used = 0,
+    Undetermined = 1,
+    Unused = 2
 }

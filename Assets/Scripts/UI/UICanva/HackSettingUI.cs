@@ -26,8 +26,6 @@ public class HackSettingUI : UICanva
     ///</summary>
     override protected void Start()
     {
-        m_WordsManager = FindAnyObjectByType<WordsManager>();
-
         m_AddWordPanel.gameObject.SetActive(false);
         m_HackConfigsPanel.gameObject.SetActive(true);
     }
@@ -70,7 +68,7 @@ public class HackSettingUI : UICanva
     {
         if (m_HackConfigsPanel.ValideInputSetting())
         {
-            m_WordsManager.SetSettings(m_HackConfigsPanel.GetWordSize(), m_HackConfigsPanel.GetNumberOfTrials());
+            LibraryFunctions.GetHackSolver().InitializeNewSettingHack(m_HackConfigsPanel.GetNumberOfTrials());
             return true;
         }
 

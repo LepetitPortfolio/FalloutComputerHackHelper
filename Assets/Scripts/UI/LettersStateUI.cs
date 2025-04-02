@@ -8,10 +8,10 @@ public class LettersStateUI : MonoBehaviour
     #region Members
 
     [SerializeField]
-    private List<CharactertStateColor> m_StateColor;
+    private List<TMPro.TextMeshProUGUI> m_Characters = new List<TMPro.TextMeshProUGUI>();
 
     [SerializeField]
-    private List<TMPro.TextMeshProUGUI> m_Characters = new List<TMPro.TextMeshProUGUI>();
+    private Color m_CharacterDefaultColor = Color.white;
 
     #endregion
 
@@ -23,7 +23,7 @@ public class LettersStateUI : MonoBehaviour
     ///</summary>
     void Start()
     {
-        ResetStateOfCharacter();
+        ResetStatOfCharacter();
     }
 
 
@@ -39,15 +39,18 @@ public class LettersStateUI : MonoBehaviour
 
     #region Functions
    
-    public void ChangeStateCharacter(char _Character, ECharacterState _CharacterState)
+    public void ChangeCharacterColor(char _Character, Color _Color)
     {
         TMPro.TextMeshProUGUI character = FindCharacter(_Character);
-        character.color = FindStateColor(_CharacterState);
+        if (character != null)
+        {
+            character.color = _Color;
+        }
     }
 
     private TMPro.TextMeshProUGUI FindCharacter(char _CharWanted)
     {
-        TMPro.TextMeshProUGUI text = new TMPro.TextMeshProUGUI();
+        TMPro.TextMeshProUGUI text = null;
 
         int characterIndex = 0;
         bool find = false;
@@ -70,33 +73,9 @@ public class LettersStateUI : MonoBehaviour
         return text;
     }
 
-    private Color FindStateColor(ECharacterState _CharacterState)
+    public void ResetStatOfCharacter()
     {
-        Color stateColor = new Color();
-        int stateIndex = 0;
-        bool find = false;
-
-        while((!find) && (stateIndex < m_StateColor.Count))
-        {
-            CharactertStateColor charactertStateColor = m_StateColor[stateIndex];
-
-            if(charactertStateColor.m_LetterState == _CharacterState)
-            {
-                stateColor = charactertStateColor.m_Color;
-                find = true;
-            }
-            else
-            {
-                stateIndex++;
-            }
-        }
-
-        return stateColor;
-    }
-
-    public void ResetStateOfCharacter()
-    {
-        Color defaultColor = FindStateColor(ECharacterState.Unknown);
+        Color defaultColor = m_CharacterDefaultColor;
         for (int characterIndex = 0; characterIndex < m_Characters.Count; characterIndex++)
         {
             TMPro.TextMeshProUGUI character = m_Characters[characterIndex].GetComponent<TMPro.TextMeshProUGUI>();

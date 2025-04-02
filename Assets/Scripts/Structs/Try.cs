@@ -12,7 +12,7 @@ public struct Try
 
     public int m_NumberOfCharacter;
 
-    public List<char> m_CharacterStateConfirmed;
+    public List<char> m_CharacterList;
 
     #endregion
 
